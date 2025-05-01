@@ -1,18 +1,14 @@
 [project]
-name = "cms"
+name = "file-based-cms"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Nicolo Bencini",email = "nicbencini@gmail.com"}
+    {name = "nicbencini",email = "nicbencini@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "flask (>=3.1.0,<4.0.0)"
 ]
-
-[tool.poetry]
-packages = [{include = "cms", from = "src"}]
 
 
 [build-system]
