@@ -9,18 +9,21 @@ from flask import(
     url_for
 )
 
+from src.file_based_cms.utility import(
+    get_data_path
+)
+
 import os
 from pathlib import Path
 from src.file_based_cms import app
 from markdown import markdown
 
 
-
 @app.before_request
 def load_file_names():
 
-    data_folder = Path("data/")
-    root = os.path.abspath(os.path.dirname(__file__))
+    #data_folder = Path("data/")
+    root = get_data_path()
     data_dir = os.path.join(root, "data")
 
     g.root = root
@@ -57,9 +60,9 @@ def save_file(file):
 
     file_path = os.path.join(g.data_dir, file)
 
-    content = request.form['content']
-    with open(file_path, 'w') as file:
-        file.write(content)
+    content = request.form['file_contents']
+    with open(file_path, 'w') as file_document:
+        file_document.write(content)
 
     flash(f"{file} has been updated.")
 
