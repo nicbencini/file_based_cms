@@ -23,6 +23,12 @@
     {% block content %}{% endblock %}
     </div>
   </main>
-  <footer>© 2025</footer>
+  <footer>
+    {% if session.username %}
+    Logged in as admin | <a href="{{ url_for('signout') }}">Sign Out</a>
+    {% else %}
+    <a href="{{ url_for('signin') }}">Sign In</a>
+    {% endif %}
+  </footer>
 </body>
 </html>
