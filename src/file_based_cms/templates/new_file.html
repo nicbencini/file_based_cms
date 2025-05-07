@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+
+<form action="{{ url_for('new_file') }}" method="post">
+  <label for="file_name">Add a new document:</label><br>
+  <input type="text" id="file_name" name="file_name"><br><br>
+  <button type="submit">Create</button>
+</form>
+
+<br><br>
+<a href="{{ url_for('index') }}">Return to index</a>
+
+
+{% endblock %}

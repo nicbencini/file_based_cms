@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+{% for item in file_data %}
+    {{ item }}<br>
+{% endfor %}
+
+<br><br>
+<a href="{{ url_for('index') }}">Return to index</a>
+
+{% endblock %}
