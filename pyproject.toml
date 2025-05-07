@@ -8,8 +8,17 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+<<<<<<< HEAD
 ]
 
+=======
+    "markdown (>=3.8,<4.0)"
+]
+
+[tool.poetry]
+packages = [{include = "file_based_cms", from = "src"}]
+
+>>>>>>> master
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

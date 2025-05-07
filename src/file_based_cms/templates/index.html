@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<ul>
+  {% for file in file_names %}
+    <li>
+    <a href="/{{ file }}">{{ file }}</a> | <a href="/{{ file }}/edit">edit</a> | <a href="/{{ file }}/delete">delete</a>
+    </li>
+  {% endfor %}
+</ul>
+<br/>
+<a href="/new">New Document</a>
+{% endblock %}
