@@ -8,6 +8,7 @@ from flask import(
     session,
     url_for
 )
+import bcrypt
 
 from src.file_based_cms.utility import(
     get_data_path
@@ -17,7 +18,37 @@ import os
 from pathlib import Path
 from src.file_based_cms import app
 from markdown import markdown
+from functools import wraps
+import yaml
 
+def valid_credentials(username, password):
+    credentials = load_user_credentials()
+
+    if username in credentials:
+        stored_password = credentials[username].encode('utf-8')
+        return bcrypt.checkpw(password.encode('utf-8'), stored_password)
+    else:
+        return False
+
+def require_signed_in_user(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not check_creds():
+            flash("You must be signed in to do that.")
+            return redirect((url_for('signin')))
+        
+        return f(*args, **kwargs)
+    
+    return decorated_function
+
+def load_user_credentials():
+    filename = 'users.yml'
+    root_dir = os.path.dirname(__file__)
+
+    credentials_path = os.path.join(root_dir, filename)
+
+    with open(credentials_path, 'r') as file:
+        return yaml.safe_load(file)
 
 @app.before_request
 def load_file_names():
@@ -30,12 +61,8 @@ def load_file_names():
     g.data_dir = data_dir
     g.file_names = os.listdir(data_dir)
 
-    
-
-
 @app.route('/')
 def index():
-
 
     return render_template('index.html', file_names=g.file_names)
 
@@ -60,6 +87,7 @@ def show_file(file):
     return render_template('view_file.html', file_data=file_data)
 
 @app.route("/<file>", methods=['POST'])
+@require_signed_in_user
 def save_file(file):
 
 
@@ -74,6 +102,7 @@ def save_file(file):
     return redirect(url_for('index'))
 
 @app.route("/<file>/edit")
+@require_signed_in_user
 def edit_file(file):
 
 
@@ -88,12 +117,14 @@ def edit_file(file):
         return redirect(url_for('index'))
 
 @app.route("/new")
+@require_signed_in_user
 def new_file():
     
     return render_template('new_file.html')
 
 
 @app.route("/new", methods=['POST'])
+@require_signed_in_user
 def create_file():
 
 
@@ -101,7 +132,7 @@ def create_file():
 
     if new_file_name in g.file_names:
         flash(f"'{new_file_name}' already exists.")
-    elif not new_file_name.endswith('.txt') or not new_file_name.endswith('.md'):
+    elif not (new_file_name.endswith('.txt') or new_file_name.endswith('.md')):
         flash(f"Please enter a valid file extension '.txt' or '.md'")
     else:
         create_document(new_file_name)
@@ -109,6 +140,7 @@ def create_file():
     return redirect(url_for('index'))
 
 @app.route("/<file>/delete")
+@require_signed_in_user
 def delete_file(file):
 
     file_path = os.path.join(g.data_dir, file)
@@ -131,7 +163,9 @@ def check_credentials():
     username = request.form['username']
     password = request.form['password']
 
-    if username == "admin" and password == "secret":
+    credentials = load_user_credentials()
+
+    if valid_credentials(username, password):
         session['username'] = username
         flash("Welcome!")
         return redirect(url_for('index'))
@@ -152,8 +186,14 @@ def create_document(name, content=""):
     with open(os.path.join(g.data_dir, name), 'w') as file:
         file.write(content)
 
-def check_creds(username, password):
-    if username == 'admin' and password == 'secret':
+def check_creds():
+
+    credentials = load_user_credentials()
+
+    if 'username' in session and session['username'] in credentials:
         return True
+    
     return False
+
+
 
